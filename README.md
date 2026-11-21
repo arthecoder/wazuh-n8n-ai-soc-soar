@@ -138,13 +138,13 @@ curl -X POST "https://<YOUR-TUNNEL-SUBDOMAIN>://webhook-test/wazuh-alerts" \
 ## Screenshots
 
 ### n8n SOAR Workflow Canvas
-![n8n Workflow](screenshots/n8n-workflow-canvas.png)
+![n8n Workflow Canvas](./n8n-workflow-canvas.png)
 
 ### Telegram AI Triage & Approval Card
-![Telegram Alert](screenshots/telegram-approval-prompt.png)
+![Telegram Approval Prompt](./telegram-approval-prompt.png)
 
 ### Ubuntu Endpoint Firewall Containment
-![UFW Block](screenshots/ubuntu-ufw-containment.png)
+![Ubuntu UFW Containment](./ubuntu-ufw-containment.png)
 
 ---
 
