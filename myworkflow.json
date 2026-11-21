@@ -1,0 +1,276 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wazuh-alerts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "525b3bc2-d00f-4b6e-84b4-766beaba8c07",
+      "name": "Webhook",
+      "webhookId": "adab4f59-0256-4496-a11c-eeb4494e7ca8"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a3e51a42-265c-4831-a156-d97a2a9a40b7",
+              "name": "body.rule.description",
+              "value": "={{ $json.body.rule.description }}",
+              "type": "string"
+            },
+            {
+              "id": "aadc14e2-d715-496f-bbad-8df66f323a73",
+              "name": "body.rule.level",
+              "value": "={{ $json.body.rule.level }}",
+              "type": "number"
+            },
+            {
+              "id": "e8067a07-5502-4552-9bd4-3853d46ae0a9",
+              "name": "body.agent.name",
+              "value": "={{ $json.body.agent.name }}",
+              "type": "string"
+            },
+            {
+              "id": "2eabcfcc-ce79-428d-ab1a-6f91b959fcde",
+              "name": "body.data.srcip",
+              "value": "={{ $json.body.data.srcip }}",
+              "type": "string"
+            },
+            {
+              "id": "ffa11ecb-2a0f-4925-ae49-083fdb1a7e63",
+              "name": "body.data.dstuser",
+              "value": "={{ $json.body.data.dstuser }}",
+              "type": "string"
+            },
+            {
+              "id": "a397a801-556a-40f1-8f89-47c88da9766d",
+              "name": "body.full_log",
+              "value": "={{ $json.body.full_log }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "093c43fb-047e-4b4e-b98c-29085733c477",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.rule.description }}{{ $json.body.rule.level }}{{ $json.body.agent.name }}{{ $json.body.data.srcip }}{{ $json.body.data.dstuser }}{{ $json.body.full_log }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "bccd9ce9-7f4e-444d-8d07-3a4bfc5181ce",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.8-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        208
+      ],
+      "id": "19877e7f-aaaf-4f7d-83ed-81125b75e98a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kLkjnUwfSNLmCJI5",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "5320176370",
+        "message": "=🚨 SOC Triage Report\nTarget IP: {{ $('Edit Fields').item.json.body.data.srcip }}\nHost: {{ $('Edit Fields').item.json.body.agent.name }}\n\n{{ $json.output.replace(/[*_`#\\[\\]]/g, '').slice(0, 3000) }}\n\nDo you want to block {{ $('Edit Fields').item.json.body.data.srcip }}?\n\n",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "🚫 Block IP",
+            "disapproveLabel": "✅ Ignore"
+          }
+        },
+        "chatApproval": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "4f8caf72-16e7-4171-8f6a-e4a1bf98c26f",
+      "name": "Send message and wait for response",
+      "webhookId": "8f0cdd5c-9543-4459-aef5-8a1588b7561e",
+      "credentials": {
+        "telegramApi": {
+          "id": "ygjHa6LP2vfW3MyD",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "5ce14496-695b-42d3-badb-a4ac694b138d",
+              "leftValue": "={{ $json.data.approved }}\n",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        928,
+        0
+      ],
+      "id": "2665a7b7-48c5-4bc7-a654-70b5c17efe00",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "command": "=sudo -S ufw deny from {{ $('Edit Fields').item.json.body.data.srcip }} to any"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        -96
+      ],
+      "id": "1d171d0f-072f-4fd0-9208-e0df2f4f2aec",
+      "name": "Execute a command",
+      "credentials": {
+        "sshPassword": {
+          "id": "MlEQMluWMkfBcbVq",
+          "name": "SSH Password account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Execute a command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f29b13e4-bbaf-4ab5-8c94-bbbacbba5d30",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f9558876226612e346eb690aaf6442de42d56975788cb5183100e43c5b6383a0"
+  },
+  "nodeGroups": [],
+  "id": "kgPv9v8m4ciRO5qD",
+  "tags": []
+}
