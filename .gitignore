@@ -1,0 +1,83 @@
+# ==========================================
+# 1. SSH KEYS & LEAST-PRIVILEGE CONTAINMENT SECRETS
+# ==========================================
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+id_ecdsa
+*.pem
+*.ppk
+*.key
+authorized_keys
+known_hosts
+ssh_config
+
+# ==========================================
+# 2. GEMINI API, TELEGRAM & ENV CREDENTIALS
+# ==========================================
+.env
+.env.*
+*.env
+*secret*
+*token*
+*credential*
+*apikey*
+*api_key*
+*chat_id*
+
+# ==========================================
+# 3. n8n DATABASE, ENCRYPTION KEYS & LOCAL VOLUMES
+# ==========================================
+n8n_data/
+.n8n/
+database.sqlite
+database.sqlite-*
+config
+crash.journal
+n8nEventLog*
+docker-compose.override.yml
+
+# ==========================================
+# 4. WAZUH KEYS, CERTIFICATES & RAW LOG DUMPS
+# ==========================================
+client.keys
+sslmanager.cert
+sslmanager.key
+*.crt
+*.p12
+*.pfx
+alerts.json
+alerts.log
+archives.json
+archives.log
+ossec.log
+integrations.log
+active-responses.log
+
+# ==========================================
+# 5. PYTHON & RUNTIME ARTIFACTS
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.log
+
+# ==========================================
+# 6. LAB ATTACK ARTIFACTS & OS CLUTTER
+# ==========================================
+*.hash
+*.pcap
+*.pcapng
+*.evtx
+users.txt
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
